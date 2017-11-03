@@ -18,9 +18,6 @@ it under the terms of the one of two licenses as you choose:
    for more information
 */
 
-#ifndef _DEFINES_H
-#define _DEFINES_H
-
 #ifndef USE_JPEG
 #define NO_JPEG
 #endif
@@ -163,5 +160,3 @@ static float fMAX(float a, float b)
 
 #define BAYER2(row,col) \
 	image[((row) >> shrink)*iwidth + ((col) >> shrink)][fcol(row,col)]
-
-#endif

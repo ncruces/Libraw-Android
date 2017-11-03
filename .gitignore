@@ -1,0 +1,16 @@
+# Android Studio
+*.iml
+*.apk
+.gradle
+.idea/libraries
+.idea/workspace.xml
+.externalNativeBuild
+build
+captures
+local.properties
+
+# Windows thumbnail db
+Thumbs.db
+
+# OSX files
+.DS_Store
