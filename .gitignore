@@ -2,6 +2,7 @@
 *.iml
 *.apk
 .gradle
+.idea/caches
 .idea/libraries
 .idea/workspace.xml
 .externalNativeBuild
