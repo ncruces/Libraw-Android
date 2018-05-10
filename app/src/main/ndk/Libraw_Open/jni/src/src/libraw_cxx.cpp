@@ -15,7 +15,7 @@ it under the terms of the one of two licenses as you choose:
    (See file LICENSE.CDDL provided in LibRaw distribution archive for details).
 
  */
- 
+
 #include "swab.h"
 
 #include <math.h>
@@ -2438,7 +2438,8 @@ int LibRaw::unpack(void)
         if(rheight < S.height + S.top_margin)
           rheight = S.height + S.top_margin;
       }
-
+    if(rwidth > 65535 || rheight > 65535) // No way to make image larger than 64k pix
+      throw LIBRAW_EXCEPTION_IO_CORRUPT;
     imgdata.rawdata.raw_image = 0;
     imgdata.rawdata.color4_image = 0;
     imgdata.rawdata.color3_image = 0;
@@ -2495,6 +2496,10 @@ int LibRaw::unpack(void)
           }
         else if(imgdata.idata.filters || P1.colors == 1) // Bayer image or single color -> decode to raw_image
           {
+
+	    if(INT64(rwidth)*INT64(rheight+8)*sizeof(imgdata.rawdata.raw_image[0]) > LIBRAW_MAX_ALLOC_MB * INT64(1024*1024))
+	      throw LIBRAW_EXCEPTION_ALLOC;
+	    
             imgdata.rawdata.raw_alloc = malloc(rwidth*(rheight+8)*sizeof(imgdata.rawdata.raw_image[0]));
             imgdata.rawdata.raw_image = (ushort*) imgdata.rawdata.raw_alloc;
             if(!S.raw_pitch)
@@ -2510,7 +2515,10 @@ int LibRaw::unpack(void)
 				S.raw_pitch = (decoder_info.decoder_flags & LIBRAW_DECODER_LEGACY_WITH_MARGINS) ? S.raw_width*8 : S.width*8;
             // allocate image as temporary buffer, size
             imgdata.rawdata.raw_alloc = 0;
-            imgdata.image = (ushort (*)[4]) calloc(unsigned(S.raw_width)*unsigned(S.raw_height),sizeof(*imgdata.image));
+	    if(INT64(MAX(S.width,S.raw_width))*INT64(MAX(S.height,S.raw_height))*sizeof(*imgdata.image) > LIBRAW_MAX_ALLOC_MB * INT64(1024*1024))
+	      throw LIBRAW_EXCEPTION_ALLOC;
+
+            imgdata.image = (ushort (*)[4]) calloc(unsigned(MAX(S.width,S.raw_width))*unsigned(MAX(S.height,S.raw_height)),sizeof(*imgdata.image));
 			if(!(decoder_info.decoder_flags &  LIBRAW_DECODER_ADOBECOPYPIXEL))
 			{
 				imgdata.rawdata.raw_image = (ushort*) imgdata.image ;
@@ -5478,17 +5486,19 @@ void x3f_clear(void *p)
   x3f_delete((x3f_t*)p);
 }
 
-static char *utf2char(utf16_t *str, char *buffer)
+static void utf2char(utf16_t *str, char *buffer, unsigned bufsz)
 {
+ if(bufsz<1) return;
+ buffer[bufsz-1] = 0;
   char *b = buffer;
 
-  while (*str != 0x00) {
+  while (*str != 0x00 && --bufsz>0)
+  {
     char *chr = (char *)str;
     *b++ = *chr;
     str++;
   }
   *b = 0;
-  return buffer;
 }
 
 static void *lr_memmem(const void *l, size_t l_len, const void *s, size_t s_len)
@@ -5544,13 +5554,21 @@ void LibRaw::parse_x3f()
 	  // Parse property list
 	  DEH = &DE->header;
 	  x3f_property_list_t *PL = &DEH->data_subsection.property_list;
+          utf16_t *datap = (utf16_t*) PL->data;
+          uint32_t maxitems = PL->data_size/sizeof(utf16_t);
 	  if (PL->property_table.size != 0) {
 		  int i;
 		  x3f_property_t *P = PL->property_table.element;
 		  for (i=0; i<PL->num_properties; i++) {
 			  char name[100], value[100];
-			  utf2char(P[i].name,name);
-			  utf2char(P[i].value,value);
+			  int noffset = (P[i].name - datap);
+                          int voffset = (P[i].value - datap);
+                          if(noffset < 0 || noffset>maxitems || voffset<0 || voffset>maxitems)
+                              throw LIBRAW_EXCEPTION_IO_CORRUPT;
+                          int maxnsize = maxitems - (P[i].name - datap);
+                          int maxvsize = maxitems - (P[i].value - datap);
+                          utf2char(P[i].name, name,MIN(maxnsize,sizeof(name)));
+                          utf2char(P[i].value, value,MIN(maxvsize,sizeof(value)));
 			  if (!strcmp (name, "ISO"))
 				  imgdata.other.iso_speed = atoi(value);
 			  if (!strcmp (name, "CAMMANUF"))
