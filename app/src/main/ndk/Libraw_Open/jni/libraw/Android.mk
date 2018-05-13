@@ -4,7 +4,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := liblibraw
 
-LOCAL_LDLIBS    := -lm -llog -ljnigraphics
+LOCAL_LDLIBS    := -lm
 
 #path to LibRAW source root:
 LIBRAW_PATH := $(LOCAL_PATH)/../src
