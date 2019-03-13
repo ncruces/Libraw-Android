@@ -4,7 +4,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := liblibraw
 
-LOCAL_LDLIBS    := -lm
+LOCAL_LDLIBS    := -lm    # -llog -ljnigraphics
 
 #path to LibRAW source root:
 LIBRAW_PATH := $(LOCAL_PATH)/../src
@@ -17,6 +17,7 @@ LOCAL_C_INCLUDES := $(LIBRAW_PATH)/internal $(LIBRAW_PATH)/libraw $(LIBRAW_PATH)
 
 
 FILE_LIST := $(LOCAL_PATH)/swab.c \
+# $(LOCAL_PATH)/libraw.c \
 $(LIBRAW_PATH)/internal/dcraw_common.cpp \
 $(LIBRAW_PATH)/internal/dcraw_fileio.cpp \
 $(LIBRAW_PATH)/internal/demosaic_packs.cpp \
