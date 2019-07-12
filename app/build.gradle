@@ -12,15 +12,9 @@ android {
         versionName '1.0'
         externalNativeBuild {
             cmake {
-                cFlags "-fsigned-char -DUSE_ZLIB"
-                cppFlags "-fexceptions"
-                arguments "-DANDROID_STL=c++_shared"
-            }
-        }
-    }
-    sourceSets {
-        main {
-            java {
+                cFlags '-fsigned-char -DUSE_ZLIB'
+                cppFlags '-fexceptions'
+                arguments '-DANDROID_STL=c++_shared'
             }
         }
     }
@@ -28,9 +22,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            ndk {
-                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-            }
         }
     }
     externalNativeBuild {
