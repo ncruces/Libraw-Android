@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId 'com.tssystems.librawtest'
         minSdkVersion 16
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionCode 1
         versionName '1.0'
         externalNativeBuild {
@@ -17,6 +17,10 @@ android {
                 arguments '-DANDROID_STL=c++_shared'
             }
         }
+    }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
     }
     buildTypes {
         release {
@@ -29,9 +33,10 @@ android {
             path file('CMakeLists.txt')
         }
     }
+    ndkVersion '21.3.6528147'
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
 }
