@@ -20,9 +20,9 @@ it under the terms of the one of two licenses as you choose:
 #ifndef _LIBRAW_CLASS_H
 #define _LIBRAW_CLASS_H
 
-#ifdef __linux__
-#define _FILE_OFFSET_BITS 64
-#endif
+// #ifdef __linux__
+// #define _FILE_OFFSET_BITS 64
+// #endif
 
 /* maximum file size to use LibRaw_file_datastream (fully buffered) I/O */
 #define LIBRAW_USE_STREAMS_DATASTREAM_MAXSIZE (250 * 1024L * 1024L)

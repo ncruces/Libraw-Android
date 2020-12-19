@@ -24,10 +24,10 @@ add_library(
         src/main/ndk/Libraw_Open/jni/src/src/libraw_datastream.cpp
         src/main/ndk/Libraw_Open/jni/src/internal/dcraw_common.cpp
         src/main/ndk/Libraw_Open/jni/src/internal/dcraw_fileio.cpp
-        src/main/ndk/Libraw_Open/jni/src/internal/demosaic_packs.cpp
-        src/main/ndk/Libraw_Open/jni/libraw/libraw.c
+        #src/main/ndk/Libraw_Open/jni/src/internal/demosaic_packs.cpp
+        #src/main/ndk/Libraw_Open/jni/libraw/libraw.c
         src/main/ndk/Libraw_Open/jni/libraw/swab.c)
 
 target_link_libraries(libraw
-        log jnigraphics
+        #log jnigraphics
         z)

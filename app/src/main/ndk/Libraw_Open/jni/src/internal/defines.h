@@ -28,6 +28,8 @@ it under the terms of the one of two licenses as you choose:
 #endif
 #define DCRAW_VERSION "9.26"
 
+#include "swab.h"
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif

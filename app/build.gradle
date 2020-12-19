@@ -12,7 +12,7 @@ android {
         versionName '1.0'
         externalNativeBuild {
             cmake {
-                cFlags '-fsigned-char -DUSE_ZLIB'
+                cFlags '-fsigned-char -DUSE_ZLIB -DUSE_X3FTOOLS'
                 cppFlags '-fexceptions'
                 arguments '-DANDROID_STL=c++_shared'
             }

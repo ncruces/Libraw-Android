@@ -142,7 +142,7 @@ int LibRaw::dcraw_process(void)
       (callbacks.pre_interpolate_cb)(this);
 
     /* post-exposure correction fallback */
-    if (P1.filters && !O.no_interpolation)
+    /*if (P1.filters && !O.no_interpolation)
     {
       if (noiserd > 0 && P1.colors == 3 && P1.filters)
         fbdd(noiserd);
@@ -179,7 +179,7 @@ int LibRaw::dcraw_process(void)
       }
 
       SET_PROC_FLAG(LIBRAW_PROGRESS_INTERPOLATE);
-    }
+    }*/
     if (IO.mix_green)
     {
       for (P1.colors = 3, i = 0; i < S.height * S.width; i++)
