@@ -93,7 +93,7 @@ build_triplet = @build@
 host_triplet = @host@
 @EXAMPLES_TRUE@bin_PROGRAMS = bin/raw-identify$(EXEEXT) \
 @EXAMPLES_TRUE@	bin/unprocessed_raw$(EXEEXT) \
-@EXAMPLES_TRUE@	bin/4channels$(EXEEXT) \
+@EXAMPLES_TRUE@	bin/4channels$(EXEEXT) bin/rawtextdump$(EXEEXT) \
 @EXAMPLES_TRUE@	bin/simple_dcraw$(EXEEXT) \
 @EXAMPLES_TRUE@	bin/mem_image$(EXEEXT) bin/dcraw_half$(EXEEXT) \
 @EXAMPLES_TRUE@	bin/half_mt$(EXEEXT) \
@@ -149,9 +149,49 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 lib_libraw_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = internal/dcraw_common.lo internal/dcraw_fileio.lo \
-	internal/demosaic_packs.lo src/libraw_cxx.lo \
-	src/libraw_datastream.lo src/libraw_c_api.lo
+am__objects_1 = src/libraw_c_api.lo src/libraw_datastream.lo \
+	src/decoders/canon_600.lo src/decoders/crx.lo \
+	src/decoders/decoders_dcraw.lo \
+	src/decoders/decoders_libraw_dcrdefs.lo \
+	src/decoders/decoders_libraw.lo src/decoders/dng.lo \
+	src/decoders/fp_dng.lo src/decoders/fuji_compressed.lo \
+	src/decoders/generic.lo src/decoders/kodak_decoders.lo \
+	src/decoders/load_mfbacks.lo src/decoders/smal.lo \
+	src/decoders/unpack_thumb.lo src/decoders/unpack.lo \
+	src/demosaic/aahd_demosaic.lo src/demosaic/ahd_demosaic.lo \
+	src/demosaic/dcb_demosaic.lo src/demosaic/dht_demosaic.lo \
+	src/demosaic/misc_demosaic.lo src/demosaic/xtrans_demosaic.lo \
+	src/integration/dngsdk_glue.lo \
+	src/integration/rawspeed_glue.lo src/metadata/adobepano.lo \
+	src/metadata/canon.lo src/metadata/ciff.lo \
+	src/metadata/cr3_parser.lo src/metadata/epson.lo \
+	src/metadata/exif_gps.lo src/metadata/fuji.lo \
+	src/metadata/identify_tools.lo src/metadata/identify.lo \
+	src/metadata/kodak.lo src/metadata/leica.lo \
+	src/metadata/makernotes.lo src/metadata/mediumformat.lo \
+	src/metadata/minolta.lo src/metadata/misc_parsers.lo \
+	src/metadata/nikon.lo src/metadata/normalize_model.lo \
+	src/metadata/olympus.lo src/metadata/hasselblad_model.lo \
+	src/metadata/p1.lo src/metadata/pentax.lo \
+	src/metadata/samsung.lo src/metadata/sony.lo \
+	src/metadata/tiff.lo src/postprocessing/aspect_ratio.lo \
+	src/postprocessing/dcraw_process.lo \
+	src/postprocessing/mem_image.lo \
+	src/postprocessing/postprocessing_aux.lo \
+	src/postprocessing/postprocessing_utils_dcrdefs.lo \
+	src/postprocessing/postprocessing_utils.lo \
+	src/preprocessing/ext_preprocess.lo \
+	src/preprocessing/raw2image.lo \
+	src/preprocessing/subtract_black.lo src/tables/cameralist.lo \
+	src/tables/colorconst.lo src/tables/colordata.lo \
+	src/tables/wblists.lo src/utils/curves.lo \
+	src/utils/decoder_info.lo src/utils/init_close_utils.lo \
+	src/utils/open.lo src/utils/phaseone_processing.lo \
+	src/utils/read_utils.lo src/utils/thumb_utils.lo \
+	src/utils/utils_dcraw.lo src/utils/utils_libraw.lo \
+	src/write/apply_profile.lo src/write/file_write.lo \
+	src/write/tiff_writer.lo src/x3f/x3f_parse_process.lo \
+	src/x3f/x3f_utils_patched.lo
 am_lib_libraw_la_OBJECTS = $(am__objects_1)
 lib_libraw_la_OBJECTS = $(am_lib_libraw_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -186,7 +226,8 @@ bin_half_mt_DEPENDENCIES = lib/libraw_r.la
 bin_half_mt_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(bin_half_mt_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-am_bin_mem_image_OBJECTS = samples/bin_mem_image-mem_image.$(OBJEXT)
+am_bin_mem_image_OBJECTS =  \
+	samples/bin_mem_image-mem_image_sample.$(OBJEXT)
 bin_mem_image_OBJECTS = $(am_bin_mem_image_OBJECTS)
 bin_mem_image_DEPENDENCIES = lib/libraw.la
 am_bin_multirender_test_OBJECTS =  \
@@ -201,6 +242,10 @@ am_bin_raw_identify_OBJECTS =  \
 	samples/bin_raw_identify-raw-identify.$(OBJEXT)
 bin_raw_identify_OBJECTS = $(am_bin_raw_identify_OBJECTS)
 bin_raw_identify_DEPENDENCIES = lib/libraw.la
+am_bin_rawtextdump_OBJECTS =  \
+	samples/bin_rawtextdump-rawtextdump.$(OBJEXT)
+bin_rawtextdump_OBJECTS = $(am_bin_rawtextdump_OBJECTS)
+bin_rawtextdump_DEPENDENCIES = lib/libraw.la
 am_bin_simple_dcraw_OBJECTS =  \
 	samples/bin_simple_dcraw-simple_dcraw.$(OBJEXT)
 bin_simple_dcraw_OBJECTS = $(am_bin_simple_dcraw_OBJECTS)
@@ -266,15 +311,15 @@ SOURCES = $(lib_libraw_la_SOURCES) $(lib_libraw_r_la_SOURCES) \
 	$(bin_dcraw_half_SOURCES) $(bin_half_mt_SOURCES) \
 	$(bin_mem_image_SOURCES) $(bin_multirender_test_SOURCES) \
 	$(bin_postprocessing_benchmark_SOURCES) \
-	$(bin_raw_identify_SOURCES) $(bin_simple_dcraw_SOURCES) \
-	$(bin_unprocessed_raw_SOURCES)
+	$(bin_raw_identify_SOURCES) $(bin_rawtextdump_SOURCES) \
+	$(bin_simple_dcraw_SOURCES) $(bin_unprocessed_raw_SOURCES)
 DIST_SOURCES = $(lib_libraw_la_SOURCES) $(lib_libraw_r_la_SOURCES) \
 	$(bin_4channels_SOURCES) $(bin_dcraw_emu_SOURCES) \
 	$(bin_dcraw_half_SOURCES) $(bin_half_mt_SOURCES) \
 	$(bin_mem_image_SOURCES) $(bin_multirender_test_SOURCES) \
 	$(bin_postprocessing_benchmark_SOURCES) \
-	$(bin_raw_identify_SOURCES) $(bin_simple_dcraw_SOURCES) \
-	$(bin_unprocessed_raw_SOURCES)
+	$(bin_raw_identify_SOURCES) $(bin_rawtextdump_SOURCES) \
+	$(bin_simple_dcraw_SOURCES) $(bin_unprocessed_raw_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -403,6 +448,8 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
+ZLIB_CFLAGS = @ZLIB_CFLAGS@
+ZLIB_LIBS = @ZLIB_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -487,12 +534,47 @@ pkgconfig_DATA = libraw.pc libraw_r.pc
 # Libraries
 lib_LTLIBRARIES = lib/libraw.la lib/libraw_r.la
 lib_libraw_a_CPPFLAGS = -DLIBRAW_NOTHREADS -w
-lib_libraw_a_SOURCES = internal/dcraw_common.cpp \
-				 internal/dcraw_fileio.cpp \
-				 internal/demosaic_packs.cpp \
-				 src/libraw_cxx.cpp \
-				 src/libraw_datastream.cpp \
-				 src/libraw_c_api.cpp 
+lib_libraw_a_SOURCES = src/libraw_c_api.cpp \
+	src/libraw_datastream.cpp src/decoders/canon_600.cpp \
+	src/decoders/crx.cpp src/decoders/decoders_dcraw.cpp \
+	src/decoders/decoders_libraw_dcrdefs.cpp \
+	src/decoders/decoders_libraw.cpp src/decoders/dng.cpp \
+	src/decoders/fp_dng.cpp src/decoders/fuji_compressed.cpp \
+	src/decoders/generic.cpp src/decoders/kodak_decoders.cpp \
+	src/decoders/load_mfbacks.cpp src/decoders/smal.cpp \
+	src/decoders/unpack_thumb.cpp src/decoders/unpack.cpp \
+	src/demosaic/aahd_demosaic.cpp src/demosaic/ahd_demosaic.cpp \
+	src/demosaic/dcb_demosaic.cpp src/demosaic/dht_demosaic.cpp \
+	src/demosaic/misc_demosaic.cpp src/demosaic/xtrans_demosaic.cpp \
+	src/integration/dngsdk_glue.cpp src/integration/rawspeed_glue.cpp\
+	src/metadata/adobepano.cpp src/metadata/canon.cpp \
+	src/metadata/ciff.cpp src/metadata/cr3_parser.cpp \
+	src/metadata/epson.cpp src/metadata/exif_gps.cpp \
+	src/metadata/fuji.cpp src/metadata/identify_tools.cpp \
+	src/metadata/identify.cpp src/metadata/kodak.cpp \
+	src/metadata/leica.cpp src/metadata/makernotes.cpp \
+	src/metadata/mediumformat.cpp src/metadata/minolta.cpp \
+	src/metadata/misc_parsers.cpp src/metadata/nikon.cpp \
+	src/metadata/normalize_model.cpp src/metadata/olympus.cpp \
+	src/metadata/hasselblad_model.cpp \
+	src/metadata/p1.cpp src/metadata/pentax.cpp src/metadata/samsung.cpp \
+	src/metadata/sony.cpp src/metadata/tiff.cpp \
+	src/postprocessing/aspect_ratio.cpp \
+	src/postprocessing/dcraw_process.cpp src/postprocessing/mem_image.cpp \
+	src/postprocessing/postprocessing_aux.cpp \
+	src/postprocessing/postprocessing_utils_dcrdefs.cpp \
+	src/postprocessing/postprocessing_utils.cpp \
+	src/preprocessing/ext_preprocess.cpp src/preprocessing/raw2image.cpp \
+	src/preprocessing/subtract_black.cpp src/tables/cameralist.cpp \
+	src/tables/colorconst.cpp src/tables/colordata.cpp \
+	src/tables/wblists.cpp src/utils/curves.cpp \
+	src/utils/decoder_info.cpp src/utils/init_close_utils.cpp \
+	src/utils/open.cpp src/utils/phaseone_processing.cpp \
+	src/utils/read_utils.cpp src/utils/thumb_utils.cpp \
+	src/utils/utils_dcraw.cpp src/utils/utils_libraw.cpp \
+	src/write/apply_profile.cpp src/write/file_write.cpp \
+	src/write/tiff_writer.cpp src/x3f/x3f_parse_process.cpp \
+	src/x3f/x3f_utils_patched.cpp 
 
 lib_libraw_r_a_CXXFLAGS = -pthread -w
 lib_libraw_r_a_CFLAGS = -pthread -w
@@ -506,6 +588,9 @@ bin_raw_identify_LDADD = lib/libraw.la
 bin_unprocessed_raw_SOURCES = samples/unprocessed_raw.cpp
 bin_unprocessed_raw_CPPFLAGS = $(lib_libraw_a_CPPFLAGS)
 bin_unprocessed_raw_LDADD = lib/libraw.la
+bin_rawtextdump_SOURCES = samples/rawtextdump.cpp
+bin_rawtextdump_CPPFLAGS = $(lib_libraw_a_CPPFLAGS)
+bin_rawtextdump_LDADD = lib/libraw.la
 bin_4channels_SOURCES = samples/4channels.cpp
 bin_4channels_CPPFLAGS = $(lib_libraw_a_CPPFLAGS)
 bin_4channels_LDADD = lib/libraw.la
@@ -518,7 +603,7 @@ bin_multirender_test_LDADD = lib/libraw.la
 bin_postprocessing_benchmark_SOURCES = samples/postprocessing_benchmark.cpp
 bin_postprocessing_benchmark_CPPFLAGS = $(lib_libraw_a_CPPFLAGS)
 bin_postprocessing_benchmark_LDADD = lib/libraw.la
-bin_mem_image_SOURCES = samples/mem_image.cpp
+bin_mem_image_SOURCES = samples/mem_image_sample.cpp
 bin_mem_image_CPPFLAGS = $(lib_libraw_a_CPPFLAGS)
 bin_mem_image_LDADD = lib/libraw.la
 bin_dcraw_half_SOURCES = samples/dcraw_half.c
@@ -606,28 +691,228 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
-internal/$(am__dirstamp):
-	@$(MKDIR_P) internal
-	@: > internal/$(am__dirstamp)
-internal/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) internal/$(DEPDIR)
-	@: > internal/$(DEPDIR)/$(am__dirstamp)
-internal/dcraw_common.lo: internal/$(am__dirstamp) \
-	internal/$(DEPDIR)/$(am__dirstamp)
-internal/dcraw_fileio.lo: internal/$(am__dirstamp) \
-	internal/$(DEPDIR)/$(am__dirstamp)
-internal/demosaic_packs.lo: internal/$(am__dirstamp) \
-	internal/$(DEPDIR)/$(am__dirstamp)
 src/$(am__dirstamp):
 	@$(MKDIR_P) src
 	@: > src/$(am__dirstamp)
 src/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/$(DEPDIR)
 	@: > src/$(DEPDIR)/$(am__dirstamp)
-src/libraw_cxx.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/libraw_c_api.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/libraw_datastream.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
-src/libraw_c_api.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/decoders/$(am__dirstamp):
+	@$(MKDIR_P) src/decoders
+	@: > src/decoders/$(am__dirstamp)
+src/decoders/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/decoders/$(DEPDIR)
+	@: > src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/decoders/canon_600.lo: src/decoders/$(am__dirstamp) \
+	src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/decoders/crx.lo: src/decoders/$(am__dirstamp) \
+	src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/decoders/decoders_dcraw.lo: src/decoders/$(am__dirstamp) \
+	src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/decoders/decoders_libraw_dcrdefs.lo: src/decoders/$(am__dirstamp) \
+	src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/decoders/decoders_libraw.lo: src/decoders/$(am__dirstamp) \
+	src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/decoders/dng.lo: src/decoders/$(am__dirstamp) \
+	src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/decoders/fp_dng.lo: src/decoders/$(am__dirstamp) \
+	src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/decoders/fuji_compressed.lo: src/decoders/$(am__dirstamp) \
+	src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/decoders/generic.lo: src/decoders/$(am__dirstamp) \
+	src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/decoders/kodak_decoders.lo: src/decoders/$(am__dirstamp) \
+	src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/decoders/load_mfbacks.lo: src/decoders/$(am__dirstamp) \
+	src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/decoders/smal.lo: src/decoders/$(am__dirstamp) \
+	src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/decoders/unpack_thumb.lo: src/decoders/$(am__dirstamp) \
+	src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/decoders/unpack.lo: src/decoders/$(am__dirstamp) \
+	src/decoders/$(DEPDIR)/$(am__dirstamp)
+src/demosaic/$(am__dirstamp):
+	@$(MKDIR_P) src/demosaic
+	@: > src/demosaic/$(am__dirstamp)
+src/demosaic/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/demosaic/$(DEPDIR)
+	@: > src/demosaic/$(DEPDIR)/$(am__dirstamp)
+src/demosaic/aahd_demosaic.lo: src/demosaic/$(am__dirstamp) \
+	src/demosaic/$(DEPDIR)/$(am__dirstamp)
+src/demosaic/ahd_demosaic.lo: src/demosaic/$(am__dirstamp) \
+	src/demosaic/$(DEPDIR)/$(am__dirstamp)
+src/demosaic/dcb_demosaic.lo: src/demosaic/$(am__dirstamp) \
+	src/demosaic/$(DEPDIR)/$(am__dirstamp)
+src/demosaic/dht_demosaic.lo: src/demosaic/$(am__dirstamp) \
+	src/demosaic/$(DEPDIR)/$(am__dirstamp)
+src/demosaic/misc_demosaic.lo: src/demosaic/$(am__dirstamp) \
+	src/demosaic/$(DEPDIR)/$(am__dirstamp)
+src/demosaic/xtrans_demosaic.lo: src/demosaic/$(am__dirstamp) \
+	src/demosaic/$(DEPDIR)/$(am__dirstamp)
+src/integration/$(am__dirstamp):
+	@$(MKDIR_P) src/integration
+	@: > src/integration/$(am__dirstamp)
+src/integration/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/integration/$(DEPDIR)
+	@: > src/integration/$(DEPDIR)/$(am__dirstamp)
+src/integration/dngsdk_glue.lo: src/integration/$(am__dirstamp) \
+	src/integration/$(DEPDIR)/$(am__dirstamp)
+src/integration/rawspeed_glue.lo: src/integration/$(am__dirstamp) \
+	src/integration/$(DEPDIR)/$(am__dirstamp)
+src/metadata/$(am__dirstamp):
+	@$(MKDIR_P) src/metadata
+	@: > src/metadata/$(am__dirstamp)
+src/metadata/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/metadata/$(DEPDIR)
+	@: > src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/adobepano.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/canon.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/ciff.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/cr3_parser.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/epson.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/exif_gps.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/fuji.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/identify_tools.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/identify.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/kodak.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/leica.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/makernotes.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/mediumformat.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/minolta.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/misc_parsers.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/nikon.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/normalize_model.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/olympus.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/hasselblad_model.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/p1.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/pentax.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/samsung.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/sony.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/metadata/tiff.lo: src/metadata/$(am__dirstamp) \
+	src/metadata/$(DEPDIR)/$(am__dirstamp)
+src/postprocessing/$(am__dirstamp):
+	@$(MKDIR_P) src/postprocessing
+	@: > src/postprocessing/$(am__dirstamp)
+src/postprocessing/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/postprocessing/$(DEPDIR)
+	@: > src/postprocessing/$(DEPDIR)/$(am__dirstamp)
+src/postprocessing/aspect_ratio.lo:  \
+	src/postprocessing/$(am__dirstamp) \
+	src/postprocessing/$(DEPDIR)/$(am__dirstamp)
+src/postprocessing/dcraw_process.lo:  \
+	src/postprocessing/$(am__dirstamp) \
+	src/postprocessing/$(DEPDIR)/$(am__dirstamp)
+src/postprocessing/mem_image.lo: src/postprocessing/$(am__dirstamp) \
+	src/postprocessing/$(DEPDIR)/$(am__dirstamp)
+src/postprocessing/postprocessing_aux.lo:  \
+	src/postprocessing/$(am__dirstamp) \
+	src/postprocessing/$(DEPDIR)/$(am__dirstamp)
+src/postprocessing/postprocessing_utils_dcrdefs.lo:  \
+	src/postprocessing/$(am__dirstamp) \
+	src/postprocessing/$(DEPDIR)/$(am__dirstamp)
+src/postprocessing/postprocessing_utils.lo:  \
+	src/postprocessing/$(am__dirstamp) \
+	src/postprocessing/$(DEPDIR)/$(am__dirstamp)
+src/preprocessing/$(am__dirstamp):
+	@$(MKDIR_P) src/preprocessing
+	@: > src/preprocessing/$(am__dirstamp)
+src/preprocessing/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/preprocessing/$(DEPDIR)
+	@: > src/preprocessing/$(DEPDIR)/$(am__dirstamp)
+src/preprocessing/ext_preprocess.lo:  \
+	src/preprocessing/$(am__dirstamp) \
+	src/preprocessing/$(DEPDIR)/$(am__dirstamp)
+src/preprocessing/raw2image.lo: src/preprocessing/$(am__dirstamp) \
+	src/preprocessing/$(DEPDIR)/$(am__dirstamp)
+src/preprocessing/subtract_black.lo:  \
+	src/preprocessing/$(am__dirstamp) \
+	src/preprocessing/$(DEPDIR)/$(am__dirstamp)
+src/tables/$(am__dirstamp):
+	@$(MKDIR_P) src/tables
+	@: > src/tables/$(am__dirstamp)
+src/tables/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/tables/$(DEPDIR)
+	@: > src/tables/$(DEPDIR)/$(am__dirstamp)
+src/tables/cameralist.lo: src/tables/$(am__dirstamp) \
+	src/tables/$(DEPDIR)/$(am__dirstamp)
+src/tables/colorconst.lo: src/tables/$(am__dirstamp) \
+	src/tables/$(DEPDIR)/$(am__dirstamp)
+src/tables/colordata.lo: src/tables/$(am__dirstamp) \
+	src/tables/$(DEPDIR)/$(am__dirstamp)
+src/tables/wblists.lo: src/tables/$(am__dirstamp) \
+	src/tables/$(DEPDIR)/$(am__dirstamp)
+src/utils/$(am__dirstamp):
+	@$(MKDIR_P) src/utils
+	@: > src/utils/$(am__dirstamp)
+src/utils/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/utils/$(DEPDIR)
+	@: > src/utils/$(DEPDIR)/$(am__dirstamp)
+src/utils/curves.lo: src/utils/$(am__dirstamp) \
+	src/utils/$(DEPDIR)/$(am__dirstamp)
+src/utils/decoder_info.lo: src/utils/$(am__dirstamp) \
+	src/utils/$(DEPDIR)/$(am__dirstamp)
+src/utils/init_close_utils.lo: src/utils/$(am__dirstamp) \
+	src/utils/$(DEPDIR)/$(am__dirstamp)
+src/utils/open.lo: src/utils/$(am__dirstamp) \
+	src/utils/$(DEPDIR)/$(am__dirstamp)
+src/utils/phaseone_processing.lo: src/utils/$(am__dirstamp) \
+	src/utils/$(DEPDIR)/$(am__dirstamp)
+src/utils/read_utils.lo: src/utils/$(am__dirstamp) \
+	src/utils/$(DEPDIR)/$(am__dirstamp)
+src/utils/thumb_utils.lo: src/utils/$(am__dirstamp) \
+	src/utils/$(DEPDIR)/$(am__dirstamp)
+src/utils/utils_dcraw.lo: src/utils/$(am__dirstamp) \
+	src/utils/$(DEPDIR)/$(am__dirstamp)
+src/utils/utils_libraw.lo: src/utils/$(am__dirstamp) \
+	src/utils/$(DEPDIR)/$(am__dirstamp)
+src/write/$(am__dirstamp):
+	@$(MKDIR_P) src/write
+	@: > src/write/$(am__dirstamp)
+src/write/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/write/$(DEPDIR)
+	@: > src/write/$(DEPDIR)/$(am__dirstamp)
+src/write/apply_profile.lo: src/write/$(am__dirstamp) \
+	src/write/$(DEPDIR)/$(am__dirstamp)
+src/write/file_write.lo: src/write/$(am__dirstamp) \
+	src/write/$(DEPDIR)/$(am__dirstamp)
+src/write/tiff_writer.lo: src/write/$(am__dirstamp) \
+	src/write/$(DEPDIR)/$(am__dirstamp)
+src/x3f/$(am__dirstamp):
+	@$(MKDIR_P) src/x3f
+	@: > src/x3f/$(am__dirstamp)
+src/x3f/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/x3f/$(DEPDIR)
+	@: > src/x3f/$(DEPDIR)/$(am__dirstamp)
+src/x3f/x3f_parse_process.lo: src/x3f/$(am__dirstamp) \
+	src/x3f/$(DEPDIR)/$(am__dirstamp)
+src/x3f/x3f_utils_patched.lo: src/x3f/$(am__dirstamp) \
+	src/x3f/$(DEPDIR)/$(am__dirstamp)
 lib/$(am__dirstamp):
 	@$(MKDIR_P) lib
 	@: > lib/$(am__dirstamp)
@@ -719,8 +1004,8 @@ samples/bin_half_mt-half_mt.$(OBJEXT): samples/$(am__dirstamp) \
 bin/half_mt$(EXEEXT): $(bin_half_mt_OBJECTS) $(bin_half_mt_DEPENDENCIES) $(EXTRA_bin_half_mt_DEPENDENCIES) bin/$(am__dirstamp)
 	@rm -f bin/half_mt$(EXEEXT)
 	$(AM_V_CCLD)$(bin_half_mt_LINK) $(bin_half_mt_OBJECTS) $(bin_half_mt_LDADD) $(LIBS)
-samples/bin_mem_image-mem_image.$(OBJEXT): samples/$(am__dirstamp) \
-	samples/$(DEPDIR)/$(am__dirstamp)
+samples/bin_mem_image-mem_image_sample.$(OBJEXT):  \
+	samples/$(am__dirstamp) samples/$(DEPDIR)/$(am__dirstamp)
 
 bin/mem_image$(EXEEXT): $(bin_mem_image_OBJECTS) $(bin_mem_image_DEPENDENCIES) $(EXTRA_bin_mem_image_DEPENDENCIES) bin/$(am__dirstamp)
 	@rm -f bin/mem_image$(EXEEXT)
@@ -743,6 +1028,12 @@ samples/bin_raw_identify-raw-identify.$(OBJEXT):  \
 bin/raw-identify$(EXEEXT): $(bin_raw_identify_OBJECTS) $(bin_raw_identify_DEPENDENCIES) $(EXTRA_bin_raw_identify_DEPENDENCIES) bin/$(am__dirstamp)
 	@rm -f bin/raw-identify$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(bin_raw_identify_OBJECTS) $(bin_raw_identify_LDADD) $(LIBS)
+samples/bin_rawtextdump-rawtextdump.$(OBJEXT):  \
+	samples/$(am__dirstamp) samples/$(DEPDIR)/$(am__dirstamp)
+
+bin/rawtextdump$(EXEEXT): $(bin_rawtextdump_OBJECTS) $(bin_rawtextdump_DEPENDENCIES) $(EXTRA_bin_rawtextdump_DEPENDENCIES) bin/$(am__dirstamp)
+	@rm -f bin/rawtextdump$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(bin_rawtextdump_OBJECTS) $(bin_rawtextdump_LDADD) $(LIBS)
 samples/bin_simple_dcraw-simple_dcraw.$(OBJEXT):  \
 	samples/$(am__dirstamp) samples/$(DEPDIR)/$(am__dirstamp)
 
@@ -758,31 +1049,119 @@ bin/unprocessed_raw$(EXEEXT): $(bin_unprocessed_raw_OBJECTS) $(bin_unprocessed_r
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f internal/*.$(OBJEXT)
-	-rm -f internal/*.lo
 	-rm -f samples/*.$(OBJEXT)
 	-rm -f src/*.$(OBJEXT)
 	-rm -f src/*.lo
+	-rm -f src/decoders/*.$(OBJEXT)
+	-rm -f src/decoders/*.lo
+	-rm -f src/demosaic/*.$(OBJEXT)
+	-rm -f src/demosaic/*.lo
+	-rm -f src/integration/*.$(OBJEXT)
+	-rm -f src/integration/*.lo
+	-rm -f src/metadata/*.$(OBJEXT)
+	-rm -f src/metadata/*.lo
+	-rm -f src/postprocessing/*.$(OBJEXT)
+	-rm -f src/postprocessing/*.lo
+	-rm -f src/preprocessing/*.$(OBJEXT)
+	-rm -f src/preprocessing/*.lo
+	-rm -f src/tables/*.$(OBJEXT)
+	-rm -f src/tables/*.lo
+	-rm -f src/utils/*.$(OBJEXT)
+	-rm -f src/utils/*.lo
+	-rm -f src/write/*.$(OBJEXT)
+	-rm -f src/write/*.lo
+	-rm -f src/x3f/*.$(OBJEXT)
+	-rm -f src/x3f/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@internal/$(DEPDIR)/dcraw_common.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@internal/$(DEPDIR)/dcraw_fileio.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@internal/$(DEPDIR)/demosaic_packs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@samples/$(DEPDIR)/bin_4channels-4channels.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@samples/$(DEPDIR)/bin_dcraw_emu-dcraw_emu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@samples/$(DEPDIR)/bin_dcraw_half-dcraw_half.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@samples/$(DEPDIR)/bin_half_mt-half_mt.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@samples/$(DEPDIR)/bin_mem_image-mem_image.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@samples/$(DEPDIR)/bin_mem_image-mem_image_sample.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@samples/$(DEPDIR)/bin_multirender_test-multirender_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@samples/$(DEPDIR)/bin_postprocessing_benchmark-postprocessing_benchmark.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@samples/$(DEPDIR)/bin_raw_identify-raw-identify.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@samples/$(DEPDIR)/bin_rawtextdump-rawtextdump.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@samples/$(DEPDIR)/bin_simple_dcraw-simple_dcraw.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@samples/$(DEPDIR)/bin_unprocessed_raw-unprocessed_raw.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libraw_c_api.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libraw_cxx.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libraw_datastream.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/decoders/$(DEPDIR)/canon_600.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/decoders/$(DEPDIR)/crx.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/decoders/$(DEPDIR)/decoders_dcraw.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/decoders/$(DEPDIR)/decoders_libraw.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/decoders/$(DEPDIR)/decoders_libraw_dcrdefs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/decoders/$(DEPDIR)/dng.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/decoders/$(DEPDIR)/fp_dng.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/decoders/$(DEPDIR)/fuji_compressed.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/decoders/$(DEPDIR)/generic.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/decoders/$(DEPDIR)/kodak_decoders.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/decoders/$(DEPDIR)/load_mfbacks.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/decoders/$(DEPDIR)/smal.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/decoders/$(DEPDIR)/unpack.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/decoders/$(DEPDIR)/unpack_thumb.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/demosaic/$(DEPDIR)/aahd_demosaic.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/demosaic/$(DEPDIR)/ahd_demosaic.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/demosaic/$(DEPDIR)/dcb_demosaic.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/demosaic/$(DEPDIR)/dht_demosaic.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/demosaic/$(DEPDIR)/misc_demosaic.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/demosaic/$(DEPDIR)/xtrans_demosaic.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/integration/$(DEPDIR)/dngsdk_glue.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/integration/$(DEPDIR)/rawspeed_glue.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/adobepano.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/canon.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/ciff.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/cr3_parser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/epson.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/exif_gps.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/fuji.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/hasselblad_model.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/identify.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/identify_tools.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/kodak.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/leica.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/makernotes.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/mediumformat.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/minolta.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/misc_parsers.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/nikon.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/normalize_model.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/olympus.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/p1.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/pentax.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/samsung.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/sony.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/metadata/$(DEPDIR)/tiff.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/postprocessing/$(DEPDIR)/aspect_ratio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/postprocessing/$(DEPDIR)/dcraw_process.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/postprocessing/$(DEPDIR)/mem_image.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/postprocessing/$(DEPDIR)/postprocessing_aux.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/postprocessing/$(DEPDIR)/postprocessing_utils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/postprocessing/$(DEPDIR)/postprocessing_utils_dcrdefs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/preprocessing/$(DEPDIR)/ext_preprocess.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/preprocessing/$(DEPDIR)/raw2image.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/preprocessing/$(DEPDIR)/subtract_black.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/tables/$(DEPDIR)/cameralist.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/tables/$(DEPDIR)/colorconst.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/tables/$(DEPDIR)/colordata.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/tables/$(DEPDIR)/wblists.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/utils/$(DEPDIR)/curves.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/utils/$(DEPDIR)/decoder_info.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/utils/$(DEPDIR)/init_close_utils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/utils/$(DEPDIR)/open.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/utils/$(DEPDIR)/phaseone_processing.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/utils/$(DEPDIR)/read_utils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/utils/$(DEPDIR)/thumb_utils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/utils/$(DEPDIR)/utils_dcraw.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/utils/$(DEPDIR)/utils_libraw.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/write/$(DEPDIR)/apply_profile.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/write/$(DEPDIR)/file_write.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/write/$(DEPDIR)/tiff_writer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/x3f/$(DEPDIR)/x3f_parse_process.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/x3f/$(DEPDIR)/x3f_utils_patched.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -888,19 +1267,19 @@ samples/bin_dcraw_emu-dcraw_emu.obj: samples/dcraw_emu.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_dcraw_emu_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o samples/bin_dcraw_emu-dcraw_emu.obj `if test -f 'samples/dcraw_emu.cpp'; then $(CYGPATH_W) 'samples/dcraw_emu.cpp'; else $(CYGPATH_W) '$(srcdir)/samples/dcraw_emu.cpp'; fi`
 
-samples/bin_mem_image-mem_image.o: samples/mem_image.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_mem_image_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT samples/bin_mem_image-mem_image.o -MD -MP -MF samples/$(DEPDIR)/bin_mem_image-mem_image.Tpo -c -o samples/bin_mem_image-mem_image.o `test -f 'samples/mem_image.cpp' || echo '$(srcdir)/'`samples/mem_image.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) samples/$(DEPDIR)/bin_mem_image-mem_image.Tpo samples/$(DEPDIR)/bin_mem_image-mem_image.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='samples/mem_image.cpp' object='samples/bin_mem_image-mem_image.o' libtool=no @AMDEPBACKSLASH@
+samples/bin_mem_image-mem_image_sample.o: samples/mem_image_sample.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_mem_image_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT samples/bin_mem_image-mem_image_sample.o -MD -MP -MF samples/$(DEPDIR)/bin_mem_image-mem_image_sample.Tpo -c -o samples/bin_mem_image-mem_image_sample.o `test -f 'samples/mem_image_sample.cpp' || echo '$(srcdir)/'`samples/mem_image_sample.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) samples/$(DEPDIR)/bin_mem_image-mem_image_sample.Tpo samples/$(DEPDIR)/bin_mem_image-mem_image_sample.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='samples/mem_image_sample.cpp' object='samples/bin_mem_image-mem_image_sample.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_mem_image_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o samples/bin_mem_image-mem_image.o `test -f 'samples/mem_image.cpp' || echo '$(srcdir)/'`samples/mem_image.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_mem_image_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o samples/bin_mem_image-mem_image_sample.o `test -f 'samples/mem_image_sample.cpp' || echo '$(srcdir)/'`samples/mem_image_sample.cpp
 
-samples/bin_mem_image-mem_image.obj: samples/mem_image.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_mem_image_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT samples/bin_mem_image-mem_image.obj -MD -MP -MF samples/$(DEPDIR)/bin_mem_image-mem_image.Tpo -c -o samples/bin_mem_image-mem_image.obj `if test -f 'samples/mem_image.cpp'; then $(CYGPATH_W) 'samples/mem_image.cpp'; else $(CYGPATH_W) '$(srcdir)/samples/mem_image.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) samples/$(DEPDIR)/bin_mem_image-mem_image.Tpo samples/$(DEPDIR)/bin_mem_image-mem_image.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='samples/mem_image.cpp' object='samples/bin_mem_image-mem_image.obj' libtool=no @AMDEPBACKSLASH@
+samples/bin_mem_image-mem_image_sample.obj: samples/mem_image_sample.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_mem_image_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT samples/bin_mem_image-mem_image_sample.obj -MD -MP -MF samples/$(DEPDIR)/bin_mem_image-mem_image_sample.Tpo -c -o samples/bin_mem_image-mem_image_sample.obj `if test -f 'samples/mem_image_sample.cpp'; then $(CYGPATH_W) 'samples/mem_image_sample.cpp'; else $(CYGPATH_W) '$(srcdir)/samples/mem_image_sample.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) samples/$(DEPDIR)/bin_mem_image-mem_image_sample.Tpo samples/$(DEPDIR)/bin_mem_image-mem_image_sample.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='samples/mem_image_sample.cpp' object='samples/bin_mem_image-mem_image_sample.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_mem_image_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o samples/bin_mem_image-mem_image.obj `if test -f 'samples/mem_image.cpp'; then $(CYGPATH_W) 'samples/mem_image.cpp'; else $(CYGPATH_W) '$(srcdir)/samples/mem_image.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_mem_image_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o samples/bin_mem_image-mem_image_sample.obj `if test -f 'samples/mem_image_sample.cpp'; then $(CYGPATH_W) 'samples/mem_image_sample.cpp'; else $(CYGPATH_W) '$(srcdir)/samples/mem_image_sample.cpp'; fi`
 
 samples/bin_multirender_test-multirender_test.o: samples/multirender_test.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_multirender_test_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT samples/bin_multirender_test-multirender_test.o -MD -MP -MF samples/$(DEPDIR)/bin_multirender_test-multirender_test.Tpo -c -o samples/bin_multirender_test-multirender_test.o `test -f 'samples/multirender_test.cpp' || echo '$(srcdir)/'`samples/multirender_test.cpp
@@ -944,6 +1323,20 @@ samples/bin_raw_identify-raw-identify.obj: samples/raw-identify.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_raw_identify_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o samples/bin_raw_identify-raw-identify.obj `if test -f 'samples/raw-identify.cpp'; then $(CYGPATH_W) 'samples/raw-identify.cpp'; else $(CYGPATH_W) '$(srcdir)/samples/raw-identify.cpp'; fi`
 
+samples/bin_rawtextdump-rawtextdump.o: samples/rawtextdump.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_rawtextdump_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT samples/bin_rawtextdump-rawtextdump.o -MD -MP -MF samples/$(DEPDIR)/bin_rawtextdump-rawtextdump.Tpo -c -o samples/bin_rawtextdump-rawtextdump.o `test -f 'samples/rawtextdump.cpp' || echo '$(srcdir)/'`samples/rawtextdump.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) samples/$(DEPDIR)/bin_rawtextdump-rawtextdump.Tpo samples/$(DEPDIR)/bin_rawtextdump-rawtextdump.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='samples/rawtextdump.cpp' object='samples/bin_rawtextdump-rawtextdump.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_rawtextdump_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o samples/bin_rawtextdump-rawtextdump.o `test -f 'samples/rawtextdump.cpp' || echo '$(srcdir)/'`samples/rawtextdump.cpp
+
+samples/bin_rawtextdump-rawtextdump.obj: samples/rawtextdump.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_rawtextdump_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT samples/bin_rawtextdump-rawtextdump.obj -MD -MP -MF samples/$(DEPDIR)/bin_rawtextdump-rawtextdump.Tpo -c -o samples/bin_rawtextdump-rawtextdump.obj `if test -f 'samples/rawtextdump.cpp'; then $(CYGPATH_W) 'samples/rawtextdump.cpp'; else $(CYGPATH_W) '$(srcdir)/samples/rawtextdump.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) samples/$(DEPDIR)/bin_rawtextdump-rawtextdump.Tpo samples/$(DEPDIR)/bin_rawtextdump-rawtextdump.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='samples/rawtextdump.cpp' object='samples/bin_rawtextdump-rawtextdump.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_rawtextdump_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o samples/bin_rawtextdump-rawtextdump.obj `if test -f 'samples/rawtextdump.cpp'; then $(CYGPATH_W) 'samples/rawtextdump.cpp'; else $(CYGPATH_W) '$(srcdir)/samples/rawtextdump.cpp'; fi`
+
 samples/bin_simple_dcraw-simple_dcraw.o: samples/simple_dcraw.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_simple_dcraw_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT samples/bin_simple_dcraw-simple_dcraw.o -MD -MP -MF samples/$(DEPDIR)/bin_simple_dcraw-simple_dcraw.Tpo -c -o samples/bin_simple_dcraw-simple_dcraw.o `test -f 'samples/simple_dcraw.cpp' || echo '$(srcdir)/'`samples/simple_dcraw.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) samples/$(DEPDIR)/bin_simple_dcraw-simple_dcraw.Tpo samples/$(DEPDIR)/bin_simple_dcraw-simple_dcraw.Po
@@ -978,9 +1371,18 @@ mostlyclean-libtool:
 clean-libtool:
 	-rm -rf .libs _libs
 	-rm -rf bin/.libs bin/_libs
-	-rm -rf internal/.libs internal/_libs
 	-rm -rf lib/.libs lib/_libs
 	-rm -rf src/.libs src/_libs
+	-rm -rf src/decoders/.libs src/decoders/_libs
+	-rm -rf src/demosaic/.libs src/demosaic/_libs
+	-rm -rf src/integration/.libs src/integration/_libs
+	-rm -rf src/metadata/.libs src/metadata/_libs
+	-rm -rf src/postprocessing/.libs src/postprocessing/_libs
+	-rm -rf src/preprocessing/.libs src/preprocessing/_libs
+	-rm -rf src/tables/.libs src/tables/_libs
+	-rm -rf src/utils/.libs src/utils/_libs
+	-rm -rf src/write/.libs src/write/_libs
+	-rm -rf src/x3f/.libs src/x3f/_libs
 
 distclean-libtool:
 	-rm -f libtool config.lt
@@ -1309,13 +1711,31 @@ distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f bin/$(am__dirstamp)
-	-rm -f internal/$(DEPDIR)/$(am__dirstamp)
-	-rm -f internal/$(am__dirstamp)
 	-rm -f lib/$(am__dirstamp)
 	-rm -f samples/$(DEPDIR)/$(am__dirstamp)
 	-rm -f samples/$(am__dirstamp)
 	-rm -f src/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/$(am__dirstamp)
+	-rm -f src/decoders/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/decoders/$(am__dirstamp)
+	-rm -f src/demosaic/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/demosaic/$(am__dirstamp)
+	-rm -f src/integration/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/integration/$(am__dirstamp)
+	-rm -f src/metadata/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/metadata/$(am__dirstamp)
+	-rm -f src/postprocessing/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/postprocessing/$(am__dirstamp)
+	-rm -f src/preprocessing/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/preprocessing/$(am__dirstamp)
+	-rm -f src/tables/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/tables/$(am__dirstamp)
+	-rm -f src/utils/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/utils/$(am__dirstamp)
+	-rm -f src/write/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/write/$(am__dirstamp)
+	-rm -f src/x3f/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/x3f/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1327,7 +1747,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf internal/$(DEPDIR) samples/$(DEPDIR) src/$(DEPDIR)
+	-rm -rf samples/$(DEPDIR) src/$(DEPDIR) src/decoders/$(DEPDIR) src/demosaic/$(DEPDIR) src/integration/$(DEPDIR) src/metadata/$(DEPDIR) src/postprocessing/$(DEPDIR) src/preprocessing/$(DEPDIR) src/tables/$(DEPDIR) src/utils/$(DEPDIR) src/write/$(DEPDIR) src/x3f/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-libtool distclean-tags
@@ -1376,7 +1796,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf internal/$(DEPDIR) samples/$(DEPDIR) src/$(DEPDIR)
+	-rm -rf samples/$(DEPDIR) src/$(DEPDIR) src/decoders/$(DEPDIR) src/demosaic/$(DEPDIR) src/integration/$(DEPDIR) src/metadata/$(DEPDIR) src/postprocessing/$(DEPDIR) src/preprocessing/$(DEPDIR) src/tables/$(DEPDIR) src/utils/$(DEPDIR) src/write/$(DEPDIR) src/x3f/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
